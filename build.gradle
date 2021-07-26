@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         def gradle = '4.2.2'
         classpath "com.android.tools.build:gradle:$gradle"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20"
 
         def hilt = "2.37"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt"
