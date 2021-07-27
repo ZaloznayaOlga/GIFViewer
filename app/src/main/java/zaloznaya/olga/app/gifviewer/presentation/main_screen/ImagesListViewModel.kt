@@ -7,29 +7,32 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
-import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
+import zaloznaya.olga.app.gifviewer.domain.usecase.GetTrendingImagesUseCase
+import zaloznaya.olga.app.gifviewer.utils.TAG
 import javax.inject.Inject
 
 @HiltViewModel
 class ImagesListViewModel @Inject constructor(
-    private val repository: IGiphyRepository
+    private val getTrendingImagesUseCase: GetTrendingImagesUseCase
 ) : ViewModel() {
 
     private val listImages = MutableLiveData<List<GifImage>>()
+    fun getImages() = listImages
 
-    fun getImages() {
-        viewModelScope.launch {
-            try {
-                val list = repository.getImages(limit = 20, offset = 0)
-                listImages.postValue(list)
-                Log.d("ImagesList", "Print LIST:")
-                list?.forEach {
-                    Log.d("", it.toString())
-                }
-            } catch (e: Exception){
-                Log.e("ImagesList", "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
+    init {
+        getTrendingImages()
+    }
+
+    private fun getTrendingImages() {
+        try {
+            viewModelScope.launch {
+                val result = getTrendingImagesUseCase
+                    .run(GetTrendingImagesUseCase.Params(20, 0))
+                listImages.postValue(result)
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception: ${e.localizedMessage}")
+            e.printStackTrace()
         }
     }
 
