@@ -7,11 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.HttpUrl
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import zaloznaya.olga.app.gifviewer.BuildConfig
 import zaloznaya.olga.app.gifviewer.data.remote.retrofit.GiphyApiService
 import zaloznaya.olga.app.gifviewer.data.remote.retrofit.createWebService
 import javax.inject.Singleton
@@ -38,19 +38,19 @@ object NetworkModule {
             .addInterceptor { chain ->
                 var request = chain.request()
                 val url: HttpUrl = request.url.newBuilder()
-                    .addQueryParameter("api_key", "MA81ahvghhVj5zej25CEXYSuy94VE8ID")
+                    .addQueryParameter("api_key", BuildConfig.API_KEY)
                     .build()
                 request = request.newBuilder().url(url).build()
                 return@addInterceptor chain.proceed(request)
             }
-//            .addInterceptor(interceptor)
+            .addInterceptor(interceptor)
             .build()
 
     @Provides
     @Singleton
     fun provideRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.giphy.com/v1/gifs/")
+            .baseUrl(BuildConfig.API_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
