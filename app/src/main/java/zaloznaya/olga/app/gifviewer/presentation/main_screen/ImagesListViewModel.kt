@@ -1,7 +1,6 @@
 package zaloznaya.olga.app.gifviewer.presentation.main_screen
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +16,14 @@ class ImagesListViewModel @Inject constructor(
     private val getTrendingImagesUseCase: GetTrendingImagesUseCase
 ) : ViewModel() {
 
-    private val listImages = MutableLiveData<List<GifImage>>()
+    private val listImages = MutableLiveData<ArrayList<GifImage>>()
     fun getImages() = listImages
 
     var loading = MutableLiveData(false)
+
+    // Pagination
+    private val limit = 20
+    private var page = 0
 
     init {
         getTrendingImages()
@@ -31,8 +34,15 @@ class ImagesListViewModel @Inject constructor(
             loading.postValue(true)
             viewModelScope.launch {
                 val result = getTrendingImagesUseCase
-                    .run(GetTrendingImagesUseCase.Params(20, 0))
-                listImages.postValue(result)
+                    .run(GetTrendingImagesUseCase.Params(limit, limit * page))
+                if (listImages.value.isNullOrEmpty()) {
+                    listImages.postValue(result as ArrayList<GifImage>?)
+                } else {
+                    listImages.value?.let { list ->
+                        list.addAll(result)
+                        listImages.postValue(list)
+                    }
+                }
             }
             loading.postValue(false)
         } catch (e: Exception) {
@@ -40,6 +50,12 @@ class ImagesListViewModel @Inject constructor(
             e.printStackTrace()
             loading.postValue(false)
         }
+    }
+
+    fun loadNextPage() {
+        page += 1
+        getTrendingImages()
+        Log.d(TAG, "loadNextPage: $page")
     }
 
     fun removeImage(id: String) {

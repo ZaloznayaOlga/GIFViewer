@@ -12,5 +12,5 @@ class RemoteGiphyDataSource @Inject constructor(
     private val mapper: IMapper<List<DataDto>?, List<GifImage>>
 ) : IRemoteGiphyDataSource {
     override suspend fun getImages(limit: Int, offset: Int): List<GifImage> =
-        mapper.mapFrom(apiService.trendingImages(limit = 20, offset = 0).responseData)
+        mapper.mapFrom(apiService.trendingImages(limit, offset).responseData)
 }
