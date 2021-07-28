@@ -1,36 +1,48 @@
 package zaloznaya.olga.app.gifviewer.presentation.main_screen
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
-import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
+import zaloznaya.olga.app.gifviewer.domain.usecase.GetTrendingImagesUseCase
+import zaloznaya.olga.app.gifviewer.utils.TAG
 import javax.inject.Inject
 
 @HiltViewModel
 class ImagesListViewModel @Inject constructor(
-    private val repository: IGiphyRepository
+    private val getTrendingImagesUseCase: GetTrendingImagesUseCase
 ) : ViewModel() {
 
     private val listImages = MutableLiveData<List<GifImage>>()
+    fun getImages() = listImages
 
-    fun getImages() {
-        viewModelScope.launch {
-            try {
-                val list = repository.getImages(limit = 20, offset = 0)
-                listImages.postValue(list)
-                Log.d("ImagesList", "Print LIST:")
-                list?.forEach {
-                    Log.d("", it.toString())
-                }
-            } catch (e: Exception){
-                Log.e("ImagesList", "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
+    var loading = MutableLiveData(false)
+
+    init {
+        getTrendingImages()
+    }
+
+    private fun getTrendingImages() {
+        try {
+            loading.postValue(true)
+            viewModelScope.launch {
+                val result = getTrendingImagesUseCase
+                    .run(GetTrendingImagesUseCase.Params(20, 0))
+                listImages.postValue(result)
             }
+            loading.postValue(false)
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception: ${e.localizedMessage}")
+            e.printStackTrace()
+            loading.postValue(false)
         }
     }
 
+    fun removeImage(id: String) {
+        Log.d(TAG, "removeImage: $id")
+    }
 }
