@@ -1,8 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vpImages"
+    <data>
+
+        <variable
+            name="vm"
+            type="zaloznaya.olga.app.gifviewer.presentation.detail_screen.ImageViewModel" />
+    </data>
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/dark_gray">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpImages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:background="@android:color/transparent"
+            android:onClick="@{() -> vm.onBackClicked()}"
+            android:padding="@dimen/margin_standard"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/white" />
+    </FrameLayout>
 </layout>

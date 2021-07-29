@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +36,7 @@ class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
             lifecycleOwner = this@ImagesListFragment
             lifecycleScope.launch {
                 initRecyclerView(rvImages)
+                initSearchView(searchView)
             }
             viewmodel = viewModel
         }.root
@@ -71,6 +73,25 @@ class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
             override fun loadMoreItems() {
                 isLoading = true
                 viewModel.loadNextPage()
+            }
+        })
+    }
+
+    private fun initSearchView(sv: SearchView) {
+        sv.setOnClickListener {
+            sv.isIconified = false
+            sv.requestFocusFromTouch()
+        }
+        sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // new search
+                Log.d(TAG, "SEARCH: $query")
+                sv.clearFocus()
+                return true
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                return true
             }
         })
     }

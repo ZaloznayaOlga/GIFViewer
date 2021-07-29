@@ -9,20 +9,30 @@
             type="zaloznaya.olga.app.gifviewer.presentation.main_screen.ImagesListViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black">
+        android:background="@color/dark_gray"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            style="@style/SearchViewStyle"
+            android:layout_width="match_parent"
+            android:layout_margin="@dimen/margin_small"
+            android:layout_height="?attr/actionBarSize"
+            app:searchIcon="@drawable/ic_search_gray"
+            android:background="@drawable/bg_search"
+            app:queryHint="Search">
+
+        </androidx.appcompat.widget.SearchView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvImages"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/margin_small"
             android:layout_marginHorizontal="@dimen/margin_smallest"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:spanCount="3"
             tools:listitem="@layout/item_preview_image" />
@@ -38,5 +48,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </layout>
