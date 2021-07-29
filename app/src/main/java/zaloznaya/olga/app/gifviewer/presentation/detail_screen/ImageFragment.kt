@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,16 +36,19 @@ class ImageFragment: Fragment(R.layout.fragment_image) {
                 viewModel.setInputParamsImage(args.image)
                 initViewPager(vpImages)
             }
-//            viewmodel = viewModel
+            vm = viewModel
         }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        adapter.setViewModel(viewModel)
         viewModel.getImages().observe(viewLifecycleOwner) { list ->
             Log.d(TAG, "list size = ${list.size}")
             adapter.setImagesList(list)
+        }
+
+        viewModel.backActionLiveEvent.observe(viewLifecycleOwner) {
+            findNavController().popBackStack()
         }
     }
 

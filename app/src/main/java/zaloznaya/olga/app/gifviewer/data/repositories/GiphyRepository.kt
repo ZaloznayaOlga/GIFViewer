@@ -11,4 +11,7 @@ class GiphyRepository @Inject constructor(
 
     override suspend fun getImages(limit: Int, offset: Int): List<GifImage>? =
         dataSource.getImages(limit, offset)
+
+    override suspend fun searchImages(query: String, limit: Int, offset: Int): List<GifImage>? =
+        dataSource.searchImages(query, limit, offset)
 }
