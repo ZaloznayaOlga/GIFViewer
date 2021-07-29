@@ -13,4 +13,7 @@ class RemoteGiphyDataSource @Inject constructor(
 ) : IRemoteGiphyDataSource {
     override suspend fun getImages(limit: Int, offset: Int): List<GifImage> =
         mapper.mapFrom(apiService.trendingImages(limit, offset).responseData)
+
+    override suspend fun searchImages(query: String, limit: Int, offset: Int): List<GifImage> =
+        mapper.mapFrom(apiService.searchImages(query, limit, offset).responseData)
 }

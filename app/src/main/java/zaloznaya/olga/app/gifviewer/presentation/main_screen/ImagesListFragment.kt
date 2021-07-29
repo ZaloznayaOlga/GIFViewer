@@ -47,9 +47,6 @@ class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
         adapter.setViewModel(viewModel)
         viewModel.getImages().observe(viewLifecycleOwner) { list ->
             Log.d(TAG, "list size = ${list.size}")
-//            list.forEach {
-//                Log.d(TAG, it.toString())
-//            }
             isLoading = false
             adapter.setImagesList(list)
         }
@@ -84,13 +81,14 @@ class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
         }
         sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                // new search
+                viewModel.newSearchImages(query)
                 Log.d(TAG, "SEARCH: $query")
                 sv.clearFocus()
                 return true
             }
 
             override fun onQueryTextChange(query: String): Boolean {
+                if (query.isEmpty()) viewModel.reloadTrendingImages()
                 return true
             }
         })
