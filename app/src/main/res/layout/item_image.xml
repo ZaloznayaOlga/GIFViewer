@@ -1,41 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
             name="image"
             type="zaloznaya.olga.app.gifviewer.domain.model.GifImage" />
-        <variable
-            name="vm"
-            type="zaloznaya.olga.app.gifviewer.presentation.main_screen.ImagesListViewModel" />
     </data>
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivPreviewGif"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/margin_small"
-            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@color/dark_gray"
-            android:minWidth="@dimen/image_big"
-            android:minHeight="@dimen/image_big"
-            android:imageUrl="@{image.url_preview}"
-            android:scaleType="centerCrop"
+            android:imageUrl="@{image.url_original}"
             tools:src="@drawable/icon_image" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/ibDeleteImage"
-            android:layout_width="@dimen/icon_image_small"
-            android:layout_height="@dimen/icon_image_small"
-            android:OnClick="@{() -> vm.removeImage(image.id)}"
-            android:src="@drawable/icon_close"
-            android:layout_gravity="top|end"/>
-
     </FrameLayout>
 </layout>
