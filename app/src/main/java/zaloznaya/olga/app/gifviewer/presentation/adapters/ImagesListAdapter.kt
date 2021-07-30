@@ -35,7 +35,7 @@ class ImagesListAdapter : RecyclerView.Adapter<ImagesListAdapter.ImagesViewHolde
     }
 
     override fun onBindViewHolder(holder: ImagesViewHolder, position: Int) {
-        imagesList?.get(position)?.let { holder.bind(it) }
+        imagesList?.get(position)?.let { holder.bind(it, position) }
     }
 
     override fun getItemCount(): Int {
@@ -48,15 +48,19 @@ class ImagesListAdapter : RecyclerView.Adapter<ImagesListAdapter.ImagesViewHolde
         private val binding: ItemPreviewImageBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(image: GifImage) {
+        fun bind(image: GifImage, position: Int) {
             binding.apply {
                 this.image = image
                 this.vm = viewModel as ImagesListViewModel?
                 executePendingBindings()
             }
             binding.ivPreviewGif.setOnClickListener {
-                Log.d(TAG, "LIST: OnClick ${image?.id}")
-                it.findNavController().navigate(ImagesListFragmentDirections.actionImagesListFragmentToImageFragment(image))
+                Log.d(TAG, "LIST: OnClick ${image.id}")
+                it.findNavController().navigate(
+                    ImagesListFragmentDirections.actionImagesListFragmentToImageFragment(
+                        position, imagesList?.toTypedArray() ?: arrayOf()
+                    )
+                )
             }
         }
     }

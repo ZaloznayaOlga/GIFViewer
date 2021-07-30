@@ -13,7 +13,7 @@
     </data>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/margin_small"
             android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_gravity="center"
             android:background="@color/dark_gray"
             android:minWidth="@dimen/image_big"
             android:minHeight="@dimen/image_big"

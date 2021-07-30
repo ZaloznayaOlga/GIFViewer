@@ -1,7 +1,6 @@
 package zaloznaya.olga.app.gifviewer.presentation.detail_screen
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import zaloznaya.olga.app.gifviewer.R
 import zaloznaya.olga.app.gifviewer.databinding.FragmentImageBinding
+import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.presentation.adapters.ImageViewPagerAdapter
-import zaloznaya.olga.app.gifviewer.utils.TAG
 
 @AndroidEntryPoint
 class ImageFragment: Fragment(R.layout.fragment_image) {
@@ -24,6 +23,7 @@ class ImageFragment: Fragment(R.layout.fragment_image) {
     private val viewModel: ImageViewModel by viewModels()
     private val args: ImageFragmentArgs by navArgs()
     private val adapter = ImageViewPagerAdapter()
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +33,7 @@ class ImageFragment: Fragment(R.layout.fragment_image) {
         .apply {
             lifecycleOwner = this@ImageFragment
             lifecycleScope.launch {
-                viewModel.setInputParamsImage(args.image)
+                viewModel.setInputParamsImage(args.images.toList() as ArrayList<GifImage>, args.position)
                 initViewPager(vpImages)
             }
             vm = viewModel
@@ -42,9 +42,9 @@ class ImageFragment: Fragment(R.layout.fragment_image) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getImages().observe(viewLifecycleOwner) { list ->
-            Log.d(TAG, "list size = ${list.size}")
-            adapter.setImagesList(list)
+        viewModel.getImagesWithPosition().observe(viewLifecycleOwner) { pair ->
+            adapter.setImagesList(pair.first)
+            viewPager.setCurrentItem(pair.second, false)
         }
 
         viewModel.backActionLiveEvent.observe(viewLifecycleOwner) {
@@ -53,6 +53,7 @@ class ImageFragment: Fragment(R.layout.fragment_image) {
     }
 
     private fun initViewPager(vp: ViewPager2) {
+        viewPager = vp
         vp.adapter = adapter
     }
 }

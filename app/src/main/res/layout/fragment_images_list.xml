@@ -9,44 +9,51 @@
             type="zaloznaya.olga.app.gifviewer.presentation.main_screen.ImagesListViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/dark_gray"
-        android:orientation="vertical">
+        android:background="@color/dark_gray">
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             style="@style/SearchViewStyle"
             android:layout_width="match_parent"
-            android:layout_margin="@dimen/margin_small"
             android:layout_height="?attr/actionBarSize"
-            app:searchIcon="@drawable/ic_search_gray"
+            android:layout_margin="@dimen/margin_small"
             android:background="@drawable/bg_search"
-            app:queryHint="Search">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryHint="Search"
+            app:searchIcon="@drawable/ic_search_gray">
 
         </androidx.appcompat.widget.SearchView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvImages"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/margin_small"
+            android:layout_height="0dp"
             android:layout_marginHorizontal="@dimen/margin_smallest"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/searchView"
             tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            tools:spanCount="3"
-            tools:listitem="@layout/item_preview_image" />
+            tools:layout_editor_absoluteX="4dp"
+            tools:listitem="@layout/item_preview_image"
+            tools:spanCount="3" />
 
-        <ProgressBar
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:invisibleUnless="@{viewmodel.loading}"
-            android:backgroundTint="@color/orange"
+            android:gravity="center"
+            android:text="@string/no_connection"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_big"
+            android:invisibleUnless="@{viewmodel.isNoConnection}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/searchView" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
