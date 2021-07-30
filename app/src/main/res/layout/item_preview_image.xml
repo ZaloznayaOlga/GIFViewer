@@ -25,7 +25,7 @@
             android:background="@color/dark_gray"
             android:minWidth="@dimen/image_big"
             android:minHeight="@dimen/image_big"
-            android:imageUrl="@{image.url_preview}"
+            android:imageUrl="@{image.urlPreview}"
             android:scaleType="centerCrop"
             tools:src="@drawable/icon_image"/>
 

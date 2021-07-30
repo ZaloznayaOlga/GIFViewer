@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class GifImage(
     val id: String,
     val title: String,
-    val url_preview: String,
-    val url_original: String
+    val urlPreview: String,
+    val urlOriginal: String
 ) : Parcelable

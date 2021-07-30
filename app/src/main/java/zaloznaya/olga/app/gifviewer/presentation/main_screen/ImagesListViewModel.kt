@@ -5,17 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
-import zaloznaya.olga.app.gifviewer.domain.usecase.GetTrendingImagesUseCase
-import zaloznaya.olga.app.gifviewer.domain.usecase.SearchImagesUseCase
+import zaloznaya.olga.app.gifviewer.domain.usecase.*
 import zaloznaya.olga.app.gifviewer.utils.TAG
 import javax.inject.Inject
 
 @HiltViewModel
 class ImagesListViewModel @Inject constructor(
     private val getTrendingImagesUseCase: GetTrendingImagesUseCase,
-    private val searchImagesUseCase: SearchImagesUseCase
+    private val searchImagesUseCase: SearchImagesUseCase,
+    private val markImageAsDeletedUseCase: MarkImageAsDeletedUseCase,
+    private val getDeletedImagesFromDbUseCase: GetDeletedImagesFromDbUseCase,
+    private val observeImagesFromDbUseCase: ObserveImagesFromDbUseCase
 ) : ViewModel() {
 
     private val listImages = MutableLiveData<ArrayList<GifImage>>()
@@ -26,12 +29,14 @@ class ImagesListViewModel @Inject constructor(
     // Pagination
     private val limit = 20
     private var page = 0
+
     // Search
     private var isSearch = false
     private var query: String = ""
 
     init {
         getTrendingImages()
+//        observeImagesFromDb()
     }
 
     private fun getTrendingImages() {
@@ -39,10 +44,13 @@ class ImagesListViewModel @Inject constructor(
         try {
             loading.postValue(true)
             viewModelScope.launch {
-                val result = getTrendingImagesUseCase
-                    .run(GetTrendingImagesUseCase.Params(limit, limit * page))
+                val result = filterImages(
+                    getTrendingImagesUseCase.run(
+                        GetTrendingImagesUseCase.Params(limit, limit * page)
+                    )
+                )
                 if (listImages.value.isNullOrEmpty()) {
-                    listImages.postValue(result as ArrayList<GifImage>?)
+                    listImages.postValue(result)
                 } else {
                     listImages.value?.let { list ->
                         list.addAll(result)
@@ -63,10 +71,13 @@ class ImagesListViewModel @Inject constructor(
         try {
             loading.postValue(true)
             viewModelScope.launch {
-                val result = searchImagesUseCase
-                    .run(SearchImagesUseCase.Params(query, limit, limit * page))
+                val result = filterImages(
+                    searchImagesUseCase.run(
+                        SearchImagesUseCase.Params(query, limit, limit * page)
+                    )
+                )
                 if (listImages.value.isNullOrEmpty()) {
-                    listImages.postValue(result as ArrayList<GifImage>?)
+                    listImages.postValue(result)
                 } else {
                     listImages.value?.let { list ->
                         list.addAll(result)
@@ -104,5 +115,46 @@ class ImagesListViewModel @Inject constructor(
 
     fun removeImage(id: String) {
         Log.d(TAG, "removeImage: $id")
+        try {
+            viewModelScope.launch {
+                markImageAsDeletedUseCase.run(MarkImageAsDeletedUseCase.Params(id))
+
+                val list = listImages.value
+                listImages.value?.forEachIndexed { index, image ->
+                    if (image.id == id) {
+                        list?.removeAt(index)
+                        listImages.postValue(list)
+                        return@launch
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception: ${e.localizedMessage}")
+            e.printStackTrace()
+        }
+    }
+
+    private suspend fun filterImages(list: List<GifImage>): ArrayList<GifImage> {
+        val result = arrayListOf<GifImage>()
+        val deletedImages = getDeletedImagesFromDbUseCase.run()
+        list.forEach { image ->
+            if (!deletedImages.contains(image.id)) {
+                result.add(image)
+            }
+        }
+        return result
+    }
+
+    private fun observeImagesFromDb() {
+        try {
+            viewModelScope.launch {
+                observeImagesFromDbUseCase.run().collect {
+                    Log.d(TAG, "ImagesFromDb = $it")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception: ${e.localizedMessage}")
+            e.printStackTrace()
+        }
     }
 }
