@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
@@ -25,6 +26,7 @@ class ImagesListViewModel @Inject constructor(
     fun getImages() = listImages
 
     var loading = MutableLiveData(false)
+    var isNoConnection = MutableLiveData(false)
 
     // Pagination
     private val limit = 20
@@ -36,14 +38,14 @@ class ImagesListViewModel @Inject constructor(
 
     init {
         getTrendingImages()
-//        observeImagesFromDb()
     }
 
     private fun getTrendingImages() {
         isSearch = false
-        try {
-            loading.postValue(true)
-            viewModelScope.launch {
+        loading.postValue(true)
+        isNoConnection.postValue(false)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val result = filterImages(
                     getTrendingImagesUseCase.run(
                         GetTrendingImagesUseCase.Params(limit, limit * page)
@@ -57,20 +59,21 @@ class ImagesListViewModel @Inject constructor(
                         listImages.postValue(list)
                     }
                 }
+                loading.postValue(false)
+            } catch (e: java.lang.Exception) {
+                Log.e(TAG, "Exception: ${e.localizedMessage}")
+                e.printStackTrace()
+                observeImagesFromDb()
+                loading.postValue(false)
             }
-            loading.postValue(false)
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception: ${e.localizedMessage}")
-            e.printStackTrace()
-            loading.postValue(false)
         }
     }
 
     private fun searchImages() {
         isSearch = true
-        try {
-            loading.postValue(true)
-            viewModelScope.launch {
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val result = filterImages(
                     searchImagesUseCase.run(
                         SearchImagesUseCase.Params(query, limit, limit * page)
@@ -84,12 +87,14 @@ class ImagesListViewModel @Inject constructor(
                         listImages.postValue(list)
                     }
                 }
+                isNoConnection.postValue(false)
+                loading.postValue(false)
+            } catch (e: java.lang.Exception) {
+                Log.e(TAG, "Exception: ${e.localizedMessage}")
+                e.printStackTrace()
+                isNoConnection.postValue(true)
+                loading.postValue(false)
             }
-            loading.postValue(false)
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception: ${e.localizedMessage}")
-            e.printStackTrace()
-            loading.postValue(false)
         }
     }
 
@@ -115,8 +120,8 @@ class ImagesListViewModel @Inject constructor(
 
     fun removeImage(id: String) {
         Log.d(TAG, "removeImage: $id")
-        try {
-            viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 markImageAsDeletedUseCase.run(MarkImageAsDeletedUseCase.Params(id))
 
                 val list = listImages.value
@@ -127,10 +132,10 @@ class ImagesListViewModel @Inject constructor(
                         return@launch
                     }
                 }
+            } catch (e: java.lang.Exception) {
+                Log.e(TAG, "Exception: ${e.localizedMessage}")
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception: ${e.localizedMessage}")
-            e.printStackTrace()
         }
     }
 
@@ -146,15 +151,19 @@ class ImagesListViewModel @Inject constructor(
     }
 
     private fun observeImagesFromDb() {
-        try {
-            viewModelScope.launch {
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 observeImagesFromDbUseCase.run().collect {
-                    Log.d(TAG, "ImagesFromDb = $it")
+                    listImages.postValue(filterImages(it))
+                    loading.postValue(false)
                 }
+            } catch (e: java.lang.Exception) {
+                Log.e(TAG, "Exception: ${e.localizedMessage}")
+                e.printStackTrace()
+                loading.postValue(false)
+                isNoConnection.postValue(true)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception: ${e.localizedMessage}")
-            e.printStackTrace()
         }
     }
 }

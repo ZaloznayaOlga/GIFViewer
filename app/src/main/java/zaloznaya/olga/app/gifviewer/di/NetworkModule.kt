@@ -14,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import zaloznaya.olga.app.gifviewer.BuildConfig
 import zaloznaya.olga.app.gifviewer.data.remote.retrofit.GiphyApiService
 import zaloznaya.olga.app.gifviewer.data.remote.retrofit.createWebService
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
@@ -44,6 +45,9 @@ object NetworkModule {
                 return@addInterceptor chain.proceed(request)
             }
             .addInterceptor(interceptor)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .build()
 
     @Provides

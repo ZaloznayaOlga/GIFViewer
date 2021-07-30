@@ -47,10 +47,10 @@ class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
 
         adapter.setViewModel(viewModel)
         viewModel.getImages().observe(viewLifecycleOwner) { list ->
-            Log.d(TAG, "LIST from API:")
-            list.forEach {
-                Log.d(TAG, "image = ${it.id}")
-            }
+//            Log.d(TAG, "LIST from API:")
+//            list.forEach {
+//                Log.d(TAG, "image = ${it.id}")
+//            }
             isLoading = false
             adapter.setImagesList(list)
         }
