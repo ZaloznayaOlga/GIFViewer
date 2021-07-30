@@ -1,5 +1,6 @@
 package zaloznaya.olga.app.gifviewer.presentation.main_screen
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,7 +21,7 @@ import zaloznaya.olga.app.gifviewer.presentation.adapters.PaginationScrollListen
 import zaloznaya.olga.app.gifviewer.utils.TAG
 
 @AndroidEntryPoint
-class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
+class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
 
     private val viewModel: ImagesListViewModel by viewModels()
     private val adapter = ImagesListAdapter()
@@ -46,14 +47,22 @@ class ImagesListFragment: Fragment(R.layout.fragment_images_list) {
 
         adapter.setViewModel(viewModel)
         viewModel.getImages().observe(viewLifecycleOwner) { list ->
-            Log.d(TAG, "list size = ${list.size}")
+            Log.d(TAG, "LIST from API:")
+            list.forEach {
+                Log.d(TAG, "image = ${it.id}")
+            }
             isLoading = false
             adapter.setImagesList(list)
         }
     }
 
     private fun initRecyclerView(rv: RecyclerView) {
-        val gridLayoutManager = GridLayoutManager(requireContext(), 3)
+        val gridLayoutManager =
+            if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                GridLayoutManager(requireContext(), 3)
+            } else {
+                GridLayoutManager(requireContext(), 5)
+            }
 
         rv.adapter = adapter
         rv.layoutManager = gridLayoutManager

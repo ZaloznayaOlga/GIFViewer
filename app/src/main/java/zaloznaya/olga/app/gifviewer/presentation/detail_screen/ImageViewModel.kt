@@ -1,5 +1,6 @@
 package zaloznaya.olga.app.gifviewer.presentation.detail_screen
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,13 +11,17 @@ import javax.inject.Inject
 @HiltViewModel
 class ImageViewModel @Inject constructor() : ViewModel() {
 
-    private val listImages = MutableLiveData<ArrayList<GifImage>>()
-    fun getImages() = listImages
+    private val listImagesWithPosition = MutableLiveData<Pair<ArrayList<GifImage>, Int>>()
+    fun getImagesWithPosition(): LiveData<Pair<ArrayList<GifImage>, Int>> = listImagesWithPosition
 
     val backActionLiveEvent = SingleLiveEvent<Any>()
 
-    fun setInputParamsImage(image : GifImage) {
-        listImages.postValue(arrayListOf(image))
+    fun setInputParamsImage(images : ArrayList<GifImage>, position: Int) {
+        images.let { list ->
+            listImagesWithPosition.postValue(
+                Pair(list, position)
+            )
+        }
     }
 
     fun onBackClicked() {

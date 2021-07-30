@@ -9,7 +9,7 @@
         android:id="@+id/imagesListFragment"
         android:name="zaloznaya.olga.app.gifviewer.presentation.main_screen.ImagesListFragment"
         android:label="ImagesListFragment"
-        tools:layout="@layout/fragment_images_list" >
+        tools:layout="@layout/fragment_images_list">
         <action
             android:id="@+id/action_imagesListFragment_to_imageFragment"
             app:destination="@id/imageFragment" />
@@ -19,7 +19,12 @@
         android:name="zaloznaya.olga.app.gifviewer.presentation.detail_screen.ImageFragment"
         android:label="ImageFragment"
         tools:layout="@layout/fragment_image">
-        <argument android:name="image" app:argType="zaloznaya.olga.app.gifviewer.domain.model.GifImage"/>
+        <argument
+            android:name="position"
+            app:argType="integer" />
+        <argument
+            android:name="images"
+            app:argType="zaloznaya.olga.app.gifviewer.domain.model.GifImage[]" />
     </fragment>
 
 </navigation>
