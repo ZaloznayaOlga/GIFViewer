@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/dark_gray"
-            android:imageUrl="@{image.url_original}"
+            android:imageUrl="@{image.urlOriginal}"
             tools:src="@drawable/icon_image" />
     </FrameLayout>
 </layout>

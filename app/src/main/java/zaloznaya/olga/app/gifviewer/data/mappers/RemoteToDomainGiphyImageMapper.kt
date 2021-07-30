@@ -9,8 +9,8 @@ class RemoteToDomainGiphyImageMapper : IMapper<List<DataDto>?, List<GifImage>> {
             GifImage(
                 id = data.id,
                 title = data.title,
-                url_original = data.images.original.url,
-                url_preview = data.images.previewGif.url,
+                urlOriginal = data.images.original.url,
+                urlPreview = data.images.previewGif.url,
             )
         } ?: listOf()
     }
