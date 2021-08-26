@@ -2,9 +2,8 @@ package zaloznaya.olga.app.gifviewer.domain.usecase
 
 import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
 import zaloznaya.olga.app.gifviewer.domain.usecase.base.usecasetypes.BaseUseCaseWithParams
-import javax.inject.Inject
 
-class MarkImageAsDeletedUseCase @Inject constructor(
+class MarkImageAsDeletedUseCase (
     private val repository: IGiphyRepository
 ) : BaseUseCaseWithParams<Unit, MarkImageAsDeletedUseCase.Params> {
 

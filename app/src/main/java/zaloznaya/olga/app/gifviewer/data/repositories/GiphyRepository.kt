@@ -5,9 +5,8 @@ import zaloznaya.olga.app.gifviewer.data.datasource.IDeviceGiphyDataSource
 import zaloznaya.olga.app.gifviewer.data.datasource.IRemoteGiphyDataSource
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
-import javax.inject.Inject
 
-class GiphyRepository @Inject constructor(
+class GiphyRepository (
     private val remoteSource: IRemoteGiphyDataSource,
     private val deviceDataSource: IDeviceGiphyDataSource
 ) : IGiphyRepository {

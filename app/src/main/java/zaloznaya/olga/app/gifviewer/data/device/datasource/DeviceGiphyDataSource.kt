@@ -7,9 +7,8 @@ import zaloznaya.olga.app.gifviewer.data.device.db.dao.ImagesDao
 import zaloznaya.olga.app.gifviewer.data.device.db.entity.GifImageEntity
 import zaloznaya.olga.app.gifviewer.data.mappers.IMapper
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
-import javax.inject.Inject
 
-class DeviceGiphyDataSource @Inject constructor(
+class DeviceGiphyDataSource (
     private val dao: ImagesDao,
     private val mapperFromEntity: IMapper<GifImageEntity, GifImage>,
     private val mapperToEntity: IMapper<GifImage, GifImageEntity>
