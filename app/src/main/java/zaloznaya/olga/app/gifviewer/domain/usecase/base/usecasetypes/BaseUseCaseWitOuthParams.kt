@@ -1,7 +1,12 @@
 package zaloznaya.olga.app.gifviewer.domain.usecase.base.usecasetypes
 
-interface BaseUseCaseWitOuthParams<Results> {
+import zaloznaya.olga.app.gifviewer.utils.BaseResult
 
-    suspend fun run() : Results
+interface BaseUseCaseWitOuthParams<T: Any> {
+
+    suspend fun run (
+        onComplete: (BaseResult<T>) -> Unit,
+        onError: (BaseResult<String>) -> Unit
+    )
 
 }
