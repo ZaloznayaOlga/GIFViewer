@@ -3,9 +3,8 @@ package zaloznaya.olga.app.gifviewer.domain.usecase
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
 import zaloznaya.olga.app.gifviewer.domain.usecase.base.usecasetypes.BaseUseCaseWithParams
-import javax.inject.Inject
 
-class SearchImagesUseCase @Inject constructor(
+class SearchImagesUseCase (
     private val repository: IGiphyRepository
 ) : BaseUseCaseWithParams<List<GifImage>, SearchImagesUseCase.Params> {
 

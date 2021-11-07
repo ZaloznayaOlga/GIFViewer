@@ -2,9 +2,8 @@ package zaloznaya.olga.app.gifviewer.domain.usecase
 
 import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
 import zaloznaya.olga.app.gifviewer.domain.usecase.base.usecasetypes.BaseUseCaseWitOuthParams
-import javax.inject.Inject
 
-class GetDeletedImagesFromDbUseCase @Inject constructor(
+class GetDeletedImagesFromDbUseCase (
     private val repository: IGiphyRepository
 ) : BaseUseCaseWitOuthParams<List<String>> {
 

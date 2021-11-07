@@ -4,23 +4,21 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.koin.core.KoinComponent
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.usecase.*
 import zaloznaya.olga.app.gifviewer.utils.TAG
-import javax.inject.Inject
 
-@HiltViewModel
-class ImagesListViewModel @Inject constructor(
+class ImagesListViewModel (
     private val getTrendingImagesUseCase: GetTrendingImagesUseCase,
     private val searchImagesUseCase: SearchImagesUseCase,
     private val markImageAsDeletedUseCase: MarkImageAsDeletedUseCase,
     private val getDeletedImagesFromDbUseCase: GetDeletedImagesFromDbUseCase,
     private val observeImagesFromDbUseCase: ObserveImagesFromDbUseCase
-) : ViewModel() {
+) : ViewModel(), KoinComponent {
 
     private val listImages = MutableLiveData<ArrayList<GifImage>>()
     fun getImages() = listImages

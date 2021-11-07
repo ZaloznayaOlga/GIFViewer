@@ -8,22 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import zaloznaya.olga.app.gifviewer.R
 import zaloznaya.olga.app.gifviewer.databinding.FragmentImagesListBinding
 import zaloznaya.olga.app.gifviewer.presentation.adapters.ImagesListAdapter
 import zaloznaya.olga.app.gifviewer.presentation.adapters.PaginationScrollListener
 import zaloznaya.olga.app.gifviewer.utils.TAG
 
-@AndroidEntryPoint
 class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
 
-    private val viewModel: ImagesListViewModel by viewModels()
+    private val viewModel by viewModel<ImagesListViewModel>()
     private val adapter = ImagesListAdapter()
     private var isLastPage: Boolean = false
     private var isLoading: Boolean = false

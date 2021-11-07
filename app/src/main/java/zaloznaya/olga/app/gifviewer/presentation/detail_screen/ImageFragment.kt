@@ -5,22 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import zaloznaya.olga.app.gifviewer.R
 import zaloznaya.olga.app.gifviewer.databinding.FragmentImageBinding
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.presentation.adapters.ImageViewPagerAdapter
 
-@AndroidEntryPoint
 class ImageFragment: Fragment(R.layout.fragment_image) {
 
-    private val viewModel: ImageViewModel by viewModels()
+    private val viewModel by viewModel<ImageViewModel>()
     private val args: ImageFragmentArgs by navArgs()
     private val adapter = ImageViewPagerAdapter()
     private lateinit var viewPager: ViewPager2
