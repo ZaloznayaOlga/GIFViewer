@@ -15,6 +15,7 @@ class ImageViewModel @Inject constructor() : ViewModel() {
     fun getImagesWithPosition(): LiveData<Pair<ArrayList<GifImage>, Int>> = listImagesWithPosition
 
     val backActionLiveEvent = SingleLiveEvent<Any>()
+    val paymentClickEvent = SingleLiveEvent<Any>()
 
     fun setInputParamsImage(images : ArrayList<GifImage>, position: Int) {
         images.let { list ->
@@ -26,5 +27,9 @@ class ImageViewModel @Inject constructor() : ViewModel() {
 
     fun onBackClicked() {
         backActionLiveEvent.call()
+    }
+
+    fun onBuyAndDownload() {
+        paymentClickEvent.call()
     }
 }

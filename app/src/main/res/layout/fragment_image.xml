@@ -27,5 +27,15 @@
             android:padding="@dimen/margin_standard"
             android:src="@drawable/ic_arrow_back"
             android:tint="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:background="@android:color/transparent"
+            android:onClick="@{() -> vm.onBuyAndDownload()}"
+            android:padding="@dimen/margin_standard"
+            android:src="@drawable/ic_baseline_download"
+            android:tint="@color/white" />
     </FrameLayout>
 </layout>
