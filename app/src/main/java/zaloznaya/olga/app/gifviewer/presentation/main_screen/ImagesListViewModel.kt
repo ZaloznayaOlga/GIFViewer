@@ -4,23 +4,21 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.koin.core.KoinComponent
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.usecase.*
 import zaloznaya.olga.app.gifviewer.utils.TAG
-import javax.inject.Inject
 
-@HiltViewModel
-class ImagesListViewModel @Inject constructor(
+class ImagesListViewModel (
     private val getTrendingImagesUseCase: GetTrendingImagesUseCase,
     private val searchImagesUseCase: SearchImagesUseCase,
     private val markImageAsDeletedUseCase: MarkImageAsDeletedUseCase,
     private val getDeletedImagesFromDbUseCase: GetDeletedImagesFromDbUseCase,
     private val observeImagesFromDbUseCase: ObserveImagesFromDbUseCase
-) : ViewModel() {
+) : ViewModel(), KoinComponent {
 
     private val listImages = MutableLiveData<ArrayList<GifImage>>()
     fun getImages() = listImages
@@ -141,7 +139,7 @@ class ImagesListViewModel @Inject constructor(
 
     private suspend fun filterImages(list: List<GifImage>): ArrayList<GifImage> {
         val result = arrayListOf<GifImage>()
-        val deletedImages = getDeletedImagesFromDbUseCase.run()
+        val deletedImages = getDeletedImagesFromDbUseCase.run().data
         list.forEach { image ->
             if (!deletedImages.contains(image.id)) {
                 result.add(image)
@@ -153,17 +151,32 @@ class ImagesListViewModel @Inject constructor(
     private fun observeImagesFromDb() {
         loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                observeImagesFromDbUseCase.run().collect {
-                    listImages.postValue(filterImages(it))
-                    loading.postValue(false)
+            observeImagesFromDbUseCase.run( { result ->
+                // onComplete
+                viewModelScope.launch(Dispatchers.IO) {
+                    result.data.collect {
+                        listImages.postValue(filterImages(it))
+                        loading.postValue(false)
+                    }
                 }
-            } catch (e: java.lang.Exception) {
-                Log.e(TAG, "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
+            }, { message ->
+                // onError
+                Log.e(TAG, "Exception: $message")
                 loading.postValue(false)
                 isNoConnection.postValue(true)
-            }
+            })
+
+//            try {
+//                observeImagesFromDbUseCase.run().collect {
+//                    listImages.postValue(filterImages(it))
+//                    loading.postValue(false)
+//                }
+//            } catch (e: java.lang.Exception) {
+//                Log.e(TAG, "Exception: ${e.localizedMessage}")
+//                e.printStackTrace()
+//                loading.postValue(false)
+//                isNoConnection.postValue(true)
+//            }
         }
     }
 }

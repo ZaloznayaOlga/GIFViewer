@@ -1,30 +1,23 @@
 package zaloznaya.olga.app.gifviewer.di
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import zaloznaya.olga.app.gifviewer.data.device.db.entity.GifImageEntity
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 import zaloznaya.olga.app.gifviewer.data.mappers.DomainFromEntityGiphyImageMapper
 import zaloznaya.olga.app.gifviewer.data.mappers.DomainToEntityGiphyImageMapper
-import zaloznaya.olga.app.gifviewer.data.mappers.IMapper
 import zaloznaya.olga.app.gifviewer.data.mappers.RemoteToDomainGiphyImageMapper
-import zaloznaya.olga.app.gifviewer.data.remote.models.DataDto
-import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 
-@Module
-@InstallIn(SingletonComponent::class)
-class MappersModule {
+val MappersModule = module {
 
-    @Provides
-    internal fun provideRemoteToDomainGiphyImageMapper(): IMapper<List<DataDto>?, List<GifImage>> =
+    factory(named("RemoteToDomainGiphyImageMapper")) {
         RemoteToDomainGiphyImageMapper()
+    }
 
-    @Provides
-    internal fun provideDomainToEntityGiphyImageMapper(): IMapper<GifImage, GifImageEntity> =
+    factory(named("DomainToEntityGiphyImageMapper")) {
         DomainToEntityGiphyImageMapper()
+    }
 
-    @Provides
-    internal fun provideDomainFromEntityGiphyImageMapper(): IMapper<GifImageEntity, GifImage> =
+    factory(named("DomainFromEntityGiphyImageMapper")) {
         DomainFromEntityGiphyImageMapper()
+    }
+
 }

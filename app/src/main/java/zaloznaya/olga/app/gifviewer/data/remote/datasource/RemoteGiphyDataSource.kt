@@ -5,9 +5,8 @@ import zaloznaya.olga.app.gifviewer.data.mappers.IMapper
 import zaloznaya.olga.app.gifviewer.data.remote.models.DataDto
 import zaloznaya.olga.app.gifviewer.data.remote.retrofit.GiphyApiService
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
-import javax.inject.Inject
 
-class RemoteGiphyDataSource @Inject constructor(
+class RemoteGiphyDataSource (
     private val apiService: GiphyApiService,
     private val mapper: IMapper<List<DataDto>?, List<GifImage>>
 ) : IRemoteGiphyDataSource {

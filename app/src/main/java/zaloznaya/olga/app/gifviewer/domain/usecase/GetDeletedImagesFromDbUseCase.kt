@@ -2,13 +2,19 @@ package zaloznaya.olga.app.gifviewer.domain.usecase
 
 import zaloznaya.olga.app.gifviewer.domain.repositories.IGiphyRepository
 import zaloznaya.olga.app.gifviewer.domain.usecase.base.usecasetypes.BaseUseCaseWitOuthParams
-import javax.inject.Inject
+import zaloznaya.olga.app.gifviewer.utils.BaseResult
 
-class GetDeletedImagesFromDbUseCase @Inject constructor(
+class GetDeletedImagesFromDbUseCase (
     private val repository: IGiphyRepository
-) : BaseUseCaseWitOuthParams<List<String>> {
+) {
 
-    override suspend fun run(): List<String> =
-        repository.getDeletedImagesIds()
+    suspend fun run(): BaseResult<List<String>> {
+        return try {
+            val result = repository.getDeletedImagesIds()
+            BaseResult.success(result)
+        } catch (e: Exception) {
+            BaseResult.error(message = e.localizedMessage)
+        }
+    }
 
 }
