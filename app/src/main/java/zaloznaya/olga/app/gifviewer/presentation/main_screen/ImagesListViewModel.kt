@@ -27,7 +27,7 @@ class ImagesListViewModel (
     var isNoConnection = MutableLiveData(false)
 
     // Pagination
-    private val limit = 20
+    private val limit = 50
     private var page = 0
 
     // Search

@@ -4,25 +4,23 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import zaloznaya.olga.app.gifviewer.R
 import zaloznaya.olga.app.gifviewer.databinding.FragmentImagesListBinding
-import zaloznaya.olga.app.gifviewer.presentation.adapters.ImagesListAdapter
-import zaloznaya.olga.app.gifviewer.presentation.adapters.PaginationScrollListener
+import zaloznaya.olga.app.gifviewer.presentation.ui.components.ImagesListView
 import zaloznaya.olga.app.gifviewer.utils.TAG
 
 class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
 
     private val viewModel by viewModel<ImagesListViewModel>()
-    private val adapter = ImagesListAdapter()
+
     private var isLastPage: Boolean = false
     private var isLoading: Boolean = false
 
@@ -34,51 +32,29 @@ class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
         .apply {
             lifecycleOwner = this@ImagesListFragment
             lifecycleScope.launch {
-                initRecyclerView(rvImages)
+                initRecyclerView(rvImagesComposeView)
                 initSearchView(searchView)
             }
             viewmodel = viewModel
         }.root
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun initRecyclerView(rvCompose: ComposeView) {
+        val count = if (requireActivity().resources.configuration.orientation
+                == Configuration.ORIENTATION_PORTRAIT) 3 else 5
 
-        adapter.setViewModel(viewModel)
         viewModel.getImages().observe(viewLifecycleOwner) { list ->
-//            Log.d(TAG, "LIST from API:")
-//            list.forEach {
-//                Log.d(TAG, "image = ${it.id}")
-//            }
             isLoading = false
-            adapter.setImagesList(list)
+            rvCompose.setContent {
+                ImagesListView(list = list, cellCount = count, onImageClick = { position ->
+                    Log.d(TAG, "LIST: OnClick $position - ${list[position].id}")
+                    findNavController().navigate(
+                        ImagesListFragmentDirections.actionImagesListFragmentToImageFragment(
+                            position, list?.toTypedArray() ?: arrayOf()
+                        )
+                    )
+                })
+            }
         }
-    }
-
-    private fun initRecyclerView(rv: RecyclerView) {
-        val gridLayoutManager =
-            if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                GridLayoutManager(requireContext(), 3)
-            } else {
-                GridLayoutManager(requireContext(), 5)
-            }
-
-        rv.adapter = adapter
-        rv.layoutManager = gridLayoutManager
-        rv.addOnScrollListener(object : PaginationScrollListener(gridLayoutManager) {
-
-            override fun isLastPage(): Boolean {
-                return isLastPage
-            }
-
-            override fun isLoading(): Boolean {
-                return isLoading
-            }
-
-            override fun loadMoreItems() {
-                isLoading = true
-                viewModel.loadNextPage()
-            }
-        })
     }
 
     private fun initSearchView(sv: SearchView) {
