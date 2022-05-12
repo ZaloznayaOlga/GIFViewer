@@ -5,14 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.usecase.*
 import zaloznaya.olga.app.gifviewer.utils.TAG
+import zaloznaya.olga.app.gifviewer.utils.set
+import zaloznaya.olga.app.gifviewer.utils.setInMain
 
-class ImagesListViewModel (
+class ImagesListViewModel(
     private val getTrendingImagesUseCase: GetTrendingImagesUseCase,
     private val searchImagesUseCase: SearchImagesUseCase,
     private val markImageAsDeletedUseCase: MarkImageAsDeletedUseCase,
@@ -20,11 +22,9 @@ class ImagesListViewModel (
     private val observeImagesFromDbUseCase: ObserveImagesFromDbUseCase
 ) : ViewModel(), KoinComponent {
 
-    private val listImages = MutableLiveData<ArrayList<GifImage>>()
-    fun getImages() = listImages
-
-    var loading = MutableLiveData(false)
-    var isNoConnection = MutableLiveData(false)
+    private val state: MutableLiveData<State> = MutableLiveData<State>(State.LoadingState())
+    fun getImagesState() = state
+//    private val listImages = MutableLiveData<ArrayList<GifImage>>()
 
     // Pagination
     private val limit = 50
@@ -40,8 +40,8 @@ class ImagesListViewModel (
 
     private fun getTrendingImages() {
         isSearch = false
-        loading.postValue(true)
-        isNoConnection.postValue(false)
+        state.set(newValue = State.LoadingState())
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = filterImages(
@@ -49,27 +49,22 @@ class ImagesListViewModel (
                         GetTrendingImagesUseCase.Params(limit, limit * page)
                     )
                 )
-                if (listImages.value.isNullOrEmpty()) {
-                    listImages.postValue(result)
+                if (result.isEmpty()) {
+                    state.setInMain(newValue = State.NoItemsState())
                 } else {
-                    listImages.value?.let { list ->
-                        list.addAll(result)
-                        listImages.postValue(list)
-                    }
+                    state.setInMain(newValue = State.LoadedState(data = result))
                 }
-                loading.postValue(false)
             } catch (e: java.lang.Exception) {
                 Log.e(TAG, "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
-                observeImagesFromDb()
-                loading.postValue(false)
+                state.setInMain(newValue = State.ErrorState("No Connection"))
+//                observeImagesFromDb()
             }
         }
     }
 
     private fun searchImages() {
         isSearch = true
-        loading.postValue(true)
+        state.set(newValue = State.LoadingState())
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = filterImages(
@@ -77,27 +72,21 @@ class ImagesListViewModel (
                         SearchImagesUseCase.Params(query, limit, limit * page)
                     )
                 )
-                if (listImages.value.isNullOrEmpty()) {
-                    listImages.postValue(result)
+                if (result.isEmpty()) {
+                    state.setInMain(newValue = State.NoItemsState())
                 } else {
-                    listImages.value?.let { list ->
-                        list.addAll(result)
-                        listImages.postValue(list)
-                    }
+                    state.setInMain(newValue = State.LoadedState(data = result))
                 }
-                isNoConnection.postValue(false)
-                loading.postValue(false)
             } catch (e: java.lang.Exception) {
                 Log.e(TAG, "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
-                isNoConnection.postValue(true)
-                loading.postValue(false)
+                state.set(newValue = State.ErrorState("No Connection"))
             }
         }
     }
 
     fun newSearchImages(query: String) {
-        listImages.postValue(arrayListOf())
+//        listImages.postValue(arrayListOf())
+        state.set(newValue = State.LoadingState())
         page = 0
         this.query = query
         searchImages()
@@ -110,32 +99,33 @@ class ImagesListViewModel (
     }
 
     fun reloadTrendingImages() {
-        listImages.postValue(arrayListOf())
+//        listImages.postValue(arrayListOf())
+        state.set(newValue = State.LoadingState())
         page = 0
         this.query = ""
         getTrendingImages()
     }
 
-    fun removeImage(id: String) {
-        Log.d(TAG, "removeImage: $id")
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                markImageAsDeletedUseCase.run(MarkImageAsDeletedUseCase.Params(id))
-
-                val list = listImages.value
-                listImages.value?.forEachIndexed { index, image ->
-                    if (image.id == id) {
-                        list?.removeAt(index)
-                        listImages.postValue(list)
-                        return@launch
-                    }
-                }
-            } catch (e: java.lang.Exception) {
-                Log.e(TAG, "Exception: ${e.localizedMessage}")
-                e.printStackTrace()
-            }
-        }
-    }
+//    fun removeImage(id: String) {
+//        Log.d(TAG, "removeImage: $id")
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                markImageAsDeletedUseCase.run(MarkImageAsDeletedUseCase.Params(id))
+//
+//                val list = listImages.value
+//                listImages.value?.forEachIndexed { index, image ->
+//                    if (image.id == id) {
+//                        list?.removeAt(index)
+//                        listImages.postValue(list)
+//                        return@launch
+//                    }
+//                }
+//            } catch (e: java.lang.Exception) {
+//                Log.e(TAG, "Exception: ${e.localizedMessage}")
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
     private suspend fun filterImages(list: List<GifImage>): ArrayList<GifImage> {
         val result = arrayListOf<GifImage>()
@@ -148,35 +138,32 @@ class ImagesListViewModel (
         return result
     }
 
-    private fun observeImagesFromDb() {
-        loading.postValue(true)
-        viewModelScope.launch(Dispatchers.IO) {
-            observeImagesFromDbUseCase.run( { result ->
-                // onComplete
-                viewModelScope.launch(Dispatchers.IO) {
-                    result.data.collect {
-                        listImages.postValue(filterImages(it))
-                        loading.postValue(false)
+    private suspend fun observeImagesFromDb() {
+        Log.e(TAG, "observeImagesFromDb")
+        state.setInMain(newValue = State.LoadingState())
+
+        Log.e(TAG, "observeImagesFromDb run...")
+        observeImagesFromDbUseCase.run({ result ->
+            // onComplete
+            viewModelScope.launch(Dispatchers.IO) {
+                result.data.collect {
+//                        listImages.postValue(filterImages(it))
+
+                    if (it.isEmpty()) {
+                        withContext(Dispatchers.Main) {
+                            state.set(newValue = State.NoItemsState())
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            state.set(newValue = State.LoadedState(data = it))
+                        }
                     }
                 }
-            }, { message ->
-                // onError
-                Log.e(TAG, "Exception: $message")
-                loading.postValue(false)
-                isNoConnection.postValue(true)
-            })
-
-//            try {
-//                observeImagesFromDbUseCase.run().collect {
-//                    listImages.postValue(filterImages(it))
-//                    loading.postValue(false)
-//                }
-//            } catch (e: java.lang.Exception) {
-//                Log.e(TAG, "Exception: ${e.localizedMessage}")
-//                e.printStackTrace()
-//                loading.postValue(false)
-//                isNoConnection.postValue(true)
-//            }
-        }
+            }
+        }, { message ->
+            // onError
+            Log.e(TAG, "Exception: $message")
+            state.set(newValue = State.ErrorState("Exception: $message"))
+        })
     }
 }

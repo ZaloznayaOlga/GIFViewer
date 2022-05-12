@@ -6,16 +6,31 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import zaloznaya.olga.app.gifviewer.R
-import zaloznaya.olga.app.gifviewer.databinding.FragmentImagesListBinding
 import zaloznaya.olga.app.gifviewer.presentation.ui.components.ImagesListView
 import zaloznaya.olga.app.gifviewer.utils.TAG
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import zaloznaya.olga.app.gifviewer.domain.model.GifImage
+import zaloznaya.olga.app.gifviewer.presentation.ui.components.GlowIndicator
 
 class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
 
@@ -27,33 +42,86 @@ class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = FragmentImagesListBinding
-        .inflate(inflater, container, false)
-        .apply {
-            lifecycleOwner = this@ImagesListFragment
-            lifecycleScope.launch {
-                initRecyclerView(rvImagesComposeView)
-                initSearchView(searchView)
-            }
-            viewmodel = viewModel
-        }.root
+    ) = ComposeView(context = requireContext()).apply {
+        setContent {
+            ImagesScreen(viewModel = viewModel, findNavController())
+        }
+    }
 
-    private fun initRecyclerView(rvCompose: ComposeView) {
+//        FragmentImagesListBinding
+//        .inflate(inflater, container, false)
+//        .apply {
+//            lifecycleOwner = this@ImagesListFragment
+//            lifecycleScope.launch {
+//                initRecyclerView(rvImagesComposeView)
+//                initSearchView(searchView)
+//            }
+//            viewmodel = viewModel
+//        }.root
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    private fun ImagesScreen(
+        viewModel: ImagesListViewModel,
+        navController: NavController
+    ) {
         val count = if (requireActivity().resources.configuration.orientation
-                == Configuration.ORIENTATION_PORTRAIT) 3 else 5
+            == Configuration.ORIENTATION_PORTRAIT
+        ) 3 else 5
 
-        viewModel.getImages().observe(viewLifecycleOwner) { list ->
-            isLoading = false
-            rvCompose.setContent {
-                ImagesListView(list = list, cellCount = count, onImageClick = { position ->
-                    Log.d(TAG, "LIST: OnClick $position - ${list[position].id}")
-                    findNavController().navigate(
-                        ImagesListFragmentDirections.actionImagesListFragmentToImageFragment(
-                            position, list?.toTypedArray() ?: arrayOf()
-                        )
-                    )
-                })
+        val imagesState = viewModel.getImagesState().observeAsState()
+
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(imagesState.value is State.LoadingState),
+            onRefresh = { viewModel.reloadTrendingImages() },
+            indicator = { state, trigger ->
+                GlowIndicator(
+                    swipeRefreshState = state,
+                    refreshTriggerDistance = trigger
+                )
             }
+        ) {
+            when (val state = imagesState.value) {
+                is State.ErrorState -> ErrorView(text = state.message)
+                is State.LoadedState<*> -> {
+                    val images = state.data.mapNotNull { it as? GifImage }
+                    ImagesListView(list = images, cellCount = count, onImageClick = { position ->
+                        Log.d(TAG, "LIST: OnClick $position - ${images[position].id}")
+                        navController.navigate(
+                            ImagesListFragmentDirections.actionImagesListFragmentToImageFragment(
+                                position, images.toTypedArray()
+                            )
+                        )
+                    })
+                }
+                is State.LoadingState -> LoadingImagesView()
+                is State.NoItemsState -> ErrorView(text = "No Images found")
+            }
+        }
+    }
+
+    @Composable
+    fun ErrorView(text: String) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = text,
+                fontSize = 16.sp,
+                color = Color.White
+            )
+        }
+    }
+
+    @Composable
+    fun LoadingImagesView() {
+        Box(modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
         }
     }
 

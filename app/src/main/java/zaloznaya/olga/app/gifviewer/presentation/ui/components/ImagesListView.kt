@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,10 +20,8 @@ fun ImagesListView(list: List<GifImage>, cellCount: Int, onImageClick: (position
         cells = GridCells.Fixed(cellCount),
         contentPadding = PaddingValues(4.dp),
         content = {
-        list.forEachIndexed { index, image ->
-            item {
+            itemsIndexed(items = list) { index, image ->
                 GifImageView(image, onImageClick, index)
             }
-        }
-    })
+        })
 }
