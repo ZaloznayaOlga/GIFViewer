@@ -13,7 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.presentation.ui.components.GlowIndicator
 
@@ -70,16 +71,22 @@ class ImagesListFragment : Fragment(R.layout.fragment_images_list) {
         ) 3 else 5
 
         val imagesState = viewModel.getImagesState().observeAsState()
-
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(imagesState.value is State.LoadingState),
-            onRefresh = { viewModel.reloadTrendingImages() },
-            indicator = { state, trigger ->
-                GlowIndicator(
-                    swipeRefreshState = state,
-                    refreshTriggerDistance = trigger
-                )
+        var refreshing by remember { mutableStateOf(false) }
+        LaunchedEffect(refreshing) {
+            if (refreshing) {
+                delay(2000)
+                refreshing = false
             }
+        }
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(refreshing),
+            onRefresh = { viewModel.reloadTrendingImages() },
+//            indicator = { state, trigger ->
+//                GlowIndicator(
+//                    swipeRefreshState = state,
+//                    refreshTriggerDistance = trigger
+//                )
+//            }
         ) {
             when (val state = imagesState.value) {
                 is State.ErrorState -> ErrorView(text = state.message)

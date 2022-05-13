@@ -1,6 +1,7 @@
 package zaloznaya.olga.app.gifviewer.presentation.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.GridCells
@@ -15,13 +16,20 @@ import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 @Composable
 fun ImagesListView(list: List<GifImage>, cellCount: Int, onImageClick: (position: Int) -> Unit) {
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        cells = GridCells.Fixed(cellCount),
-        contentPadding = PaddingValues(4.dp),
-        content = {
-            itemsIndexed(items = list) { index, image ->
-                GifImageView(image, onImageClick, index)
-            }
-        })
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val padding = 4.dp * 2
+        val cardWidth = (maxWidth / cellCount) - padding
+
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            cells = GridCells.Fixed(cellCount),
+            contentPadding = PaddingValues(4.dp),
+            content = {
+                itemsIndexed(items = list) { index, image ->
+                    GifImageView(image, onImageClick, index, cardWidth)
+                }
+            })
+    }
 }
