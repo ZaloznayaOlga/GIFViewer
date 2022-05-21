@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import zaloznaya.olga.app.gifviewer.domain.model.GifImage
 import zaloznaya.olga.app.gifviewer.domain.usecase.*
+import zaloznaya.olga.app.gifviewer.presentation.ui.components.State
 import zaloznaya.olga.app.gifviewer.utils.TAG
 import zaloznaya.olga.app.gifviewer.utils.set
 import zaloznaya.olga.app.gifviewer.utils.setInMain

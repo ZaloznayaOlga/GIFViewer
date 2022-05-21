@@ -1,4 +1,4 @@
-package zaloznaya.olga.app.gifviewer.presentation.main_screen
+package zaloznaya.olga.app.gifviewer.presentation.ui.components
 
 sealed class State {
     class LoadingState: State()
