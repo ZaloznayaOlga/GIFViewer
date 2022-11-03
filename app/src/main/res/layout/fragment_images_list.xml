@@ -29,6 +29,15 @@
 
         </androidx.appcompat.widget.SearchView>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btTestLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Google sign in"
+            android:layout_margin="@dimen/margin_standard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvImages"
             android:layout_width="match_parent"
