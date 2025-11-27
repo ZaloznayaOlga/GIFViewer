@@ -1,4 +1,4 @@
-package com.olgaz.gifviewer.ui.theme
+package com.olgaz.gifviewer.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build
