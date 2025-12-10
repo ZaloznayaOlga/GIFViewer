@@ -14,7 +14,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import retrofit2.create
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
@@ -26,23 +26,17 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json {
-        return Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-            prettyPrint = true
-        }
+    fun provideJson() = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+        prettyPrint = true
     }
 
     @Provides
     @Singleton
     fun provideConverterFactory(
         json: Json
-    ): Converter.Factory {
-        return json.asConverterFactory(
-            "application/json".toMediaType()
-        )
-    }
+    ): Converter.Factory = json.asConverterFactory("application/json".toMediaType())
 
     @Provides
     @Singleton
@@ -51,6 +45,8 @@ object NetworkModule {
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BASIC
             })
+            .readTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
             .build()
 
     @Provides
@@ -58,8 +54,7 @@ object NetworkModule {
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
         converterFactory: Converter.Factory
-    ): Retrofit =
-        Retrofit.Builder()
+    ): Retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
@@ -69,7 +64,5 @@ object NetworkModule {
     @Singleton
     internal fun provideGiphyApiService(
         retrofit: Retrofit
-    ): GiphyApiService {
-        return retrofit.create()
-    }
+    ): GiphyApiService = retrofit.create(GiphyApiService::class.java)
 }
